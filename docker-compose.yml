@@ -1,0 +1,53 @@
+version: "3"
+services:
+  selenium-hub:
+    image: selenium/hub
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+    environment:
+      - DBUS_SESSION_BUS_ADDRESS=/dev/null
+  chrome:
+    image: selenium/node-chrome-debug
+    shm_size: '4gb'
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_PORT_4444_TCP_ADDR=selenium-hub
+      - HUB_PORT_4444_TCP_PORT=4444
+      - DBUS_SESSION_BUS_ADDRESS=/dev/null
+    ports:
+      - "7900:7900"
+  firefox:
+    image: selenium/node-firefox
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_PORT_4444_TCP_ADDR=selenium-hub
+      - HUB_PORT_4444_TCP_PORT=4444
+  search-module-chrome:
+    image: docker-test
+    container_name: search-git-chrome
+    volumes:
+      - "C:/Users/wjavaid/Desktop/docker/chrome:/usr/share/test/test-output"
+    depends_on:
+      - firefox
+      - chrome
+    environment:
+      - MODULE=testng.xml
+      - BROWSER=chrome
+      - SELENIUM_HUB=selenium-hub
+      - TARGET_WEBDRIVER=remote
+  search-module-firefox:
+    image: docker-test
+    container_name: search-git-firefox
+    volumes:
+      - "C:/Users/wjavaid/Desktop/docker/firefox:/usr/share/test/test-output"
+    depends_on:
+      - firefox
+      - chrome
+    environment:
+      - MODULE=testng.xml
+      - BROWSER=firefox
+      - SELENIUM_HUB=selenium-hub
+      - TARGET_WEBDRIVER=remote
